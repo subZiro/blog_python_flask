@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Clean Blog - Sample Post
+{% endblock %} | Flask app
+
+{% block content_head %}
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('{{ url_for('static', filename='img/post-bg.jpg') }}')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>{{ post.title }}</h1>
+                        <h2 class="subheading">{{ post.get_description() }}</h2>
+                        <span class="meta">Posted by <a href="#">{{ post.get_author() }}</a> on {{ post.get_formated_date() }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <!-- Main Content -->
+    <article>
+
+        <div class="container">
+            <div class="row">
+                <div class="tags text-center">
+                        {% for tag in tags %}
+                            <a href="{{ url_for('posts.tag_detail', slug=tag.tag_slug) }}" class="badge badge-secondary">{{ tag.tag_name }}</a>
+                        {% endfor %}
+                    </div>
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <p>
+                        {{ post.body }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </article>
+{% endblock %}
