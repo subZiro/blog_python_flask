@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block title %}
-    Posts with {{ tag.tag_name }} tag
+    New Post
 {% endblock %} | Flask app
 
 {% block content_head %}
@@ -15,26 +15,25 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                {% for post in posts %}
-                    <div class="post-preview">
-                        <a href="{{ url_for('posts.post_detail', slug=post.slug) }}">
-                            <h2 class="post-title">{{ post.title }}</h2>
-                            <h3 class="post-subtitle">{{ post.get_description() }}</h3>
-                        </a>
-                        <p class="post-meta">
-                            Posted by <a href="#">{{ post.get_author() }}</a>
-                            on {{ post.get_formated_date() }}
-                        </p>
-                    </div>
-                    <hr>
-                {% endfor %}
 
-                <!-- Pager -->
-                <ul class="pager">
-                    <li class="next">
-                        <a href="#">Older Posts &rarr;</a>
-                    </li>
-                </ul>
+                <h1>Create new post</h1>
+                <br><br>
+
+                <form action="{{ url_for('posts.create_post')}}" method="POST">
+                    {% for field in form %}
+                        <div class="row control-group">
+                            <div class="form-group col-xs-12 controls">
+                                {{ field.label(class='control-label small') }}
+                                {{ field(class='form-control') }}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Create</button>
+                    </div>
+
+                </form>
             </div>
         </div>
     </div>
