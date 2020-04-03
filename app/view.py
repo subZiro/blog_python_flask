@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import render_template
+from flask import request
 
 from app import app
 
@@ -10,8 +11,17 @@ from models import Post
 @app.route('/')
 @app.route('/index.html')
 def index():
-    posts = Post.query.filter(Post.status == 1).all()
-    return render_template('index.html', posts=posts)
+    """главная страница с пагинацией постов по 4 поста на странице"""
+    page = request.args.get('page')
+    if page and page.isdigit():
+        page = int(page)
+    else:
+        page = 1
+
+    posts_s = Post.query.filter(Post.status == 1)  # посты со статусом 1
+    posts = posts_s.order_by(Post.create_time.desc())  # отображение постов по дате (от нового к старому)
+    pages = posts.paginate(page=page, per_page=4)  # пагинация по 4 поста на странице
+    return render_template('index.html', pages=pages)
 
 
 @app.route('/about.html')
