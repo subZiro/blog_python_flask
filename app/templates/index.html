@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Index page
+{% endblock %} | Flask app
+
+{% block content_head %}
+    <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('{{ url_for('static', filename='img/home-bg.jpg') }}')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="site-heading">
+                        <h1>Clean Blog</h1>
+                        <hr class="small">
+                        <span class="subheading">A Clean Blog For Start Flask Framework</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                {% for post in posts %}
+                    <div class="post-preview">
+                        <a href="{{ url_for('posts.post_detail', slug=post.slug) }}">
+                            <h2 class="post-title">{{ post.title }}</h2>
+                            <h3 class="post-subtitle">{{ post.get_description() }}</h3>
+                        </a>
+                        <div class="tags">
+                            {% for tag in tags %}
+                                <a href="#" class="badge badge-secondary">{{ tag.tag_name }}</a>
+                            {% endfor %}
+                        </div>
+                        <p class="post-meta">Posted by <a href="#">{{ post.get_author() }}</a> on {{ post.get_formated_date() }}</p>
+                    </div>
+                    <hr>
+                {% endfor %}
+                <hr>
+                <!-- Pager -->
+                <ul class="pager">
+                    <li class="next">
+                        <a href="#">Older Posts &rarr;</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
