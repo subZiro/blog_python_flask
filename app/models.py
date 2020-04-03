@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # работа с моделями бд
 
+import os
 import re
 from datetime import datetime
 
 from app import db
-
 
 post_tags = db.Table('post_tags',
                      db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
@@ -17,6 +17,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50))
     is_admin = db.Column(db.Integer, default=0)
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
 
     def __init__(self, *args, **kwargs):
         """инициализация"""
@@ -49,7 +50,7 @@ class Post(db.Model):
     description = db.Column(db.String(280))
     slug = db.Column(db.String(140), unique=True)
     body = db.Column(db.Text)
-    author_id = db.Column(db.Integer)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     create_time = db.Column(db.DateTime, default=datetime.now())
     status = db.Column(db.Boolean, default=0)
 
@@ -79,12 +80,13 @@ class Post(db.Model):
         else:
             return ''
 
+
     def get_author(self):
         """временное решение возврат псевдонима админа"""
         a = {1: 'Start Flask', 2: 'I AM', 3: 'CatDog', 4: 'AKIRA'}
         if not self.author_id:
             return 'Administrator'
-        return a[self.author_id]
+        return self.author.name
 
     def get_formated_date(self, format='%B %d, %Y'):
         """получение даты в формате d mounth YYYY"""
@@ -93,9 +95,26 @@ class Post(db.Model):
         else:
             return self.create_time.strftime(format)
 
+    def get_title_image(self):
+        """получение изображения для заголовка поста, если изображение отсутствует то грузить default"""
+        if not self.title_image:
+            return 'img/no-title-image.jpg'
+        return self.title_image
+
 
 def f_slugify(s: str):
     """генерация валидного url из строки"""
     pattern = r'[^\w+]'
     return re.sub(pattern, '-', s.lower())
 
+
+def upload_folder(workspace='/static/img', folder='upload'):
+    """если папки не существует создание папки upload
+    create_folder(r"C:\TEMP\person\age1", "Gulag")
+    create folder with path C:\TEMP\person\age1\Gulag"""
+    path = os.path.join(workspace, folder)
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print("create folder with path {0}".format(path))
+    else:
+        print("folder exists {0}".format(path))
