@@ -37,12 +37,16 @@ def create_post():
 
 @posts.route('/')
 def posts_pages():
-    """ страница всех постов"""
-    pages = request.args.get('page')
+    """ страница всех постов 6 постов на одной странице"""
+    page = request.args.get('page')
+    if page and page.isdigit():
+        page = int(page)
+    else:
+        page = 1
 
-
-    posts = Post.query.order_by(Post.create_time.desc())
-    return render_template('posts/index.html', posts=posts)
+    posts = Post.query.order_by(Post.create_time.desc())  # отображение постов по дате (от нового к старому)
+    pages = posts.paginate(page=page, per_page=6)  # пагинация постов по 6 постов на странице
+    return render_template('posts/index.html', pages=pages)
 
 
 @posts.route('/<slug>')
