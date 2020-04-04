@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+	Login
+{% endblock %}
+
+
+{% block content_head %}
+   <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('{{ url_for('static', filename='img/home-bg.jpg') }}'); height:60px">
+    </header>
+
+	<div class="col-md-10 col-md-offset-3">
+		<h1>{{ _('Login') }}</h1>
+	</div>
+{% endblock %}
+
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+				{% from "security/_macros.html" import render_field_with_errors, render_field %}
+				{% include "security/_messages.html" %}
+				<form action="{{ url_for_security('login') }}" method="POST" name="login_user_form">
+					{{ login_user_form.hidden_tag() }}
+					{{ render_field_with_errors(login_user_form.email, class='form-control') }}
+					{{ render_field_with_errors(login_user_form.password, class='form-control') }}
+					{{ render_field_with_errors(login_user_form.remember) }}
+					{{ render_field(login_user_form.next) }}
+					{{ render_field(login_user_form.submit, class='btn btn-success') }}
+				</form>
+				{% include "security/_menu.html" %}
+			</div>
+		</div>
+	</div>
+{% endblock %}
