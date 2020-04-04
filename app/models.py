@@ -5,19 +5,29 @@ import os
 import re
 from datetime import datetime
 
+from flask_security import UserMixin, RoleMixin
+
 from app import db
 
 post_tags = db.Table('post_tags',
-                     db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
-                     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'))
+                     db.Column('post_id', db.Integer(), db.ForeignKey('post.id')),
+                     db.Column('tag_id', db.Integer(), db.ForeignKey('tag.id'))
                      )
 
+users_roles = db.Table('users_roles',
+                       db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
+                       )
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50))
-    is_admin = db.Column(db.Integer, default=0)
+    email = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(255))
+    active = db.Column(db.Boolean)
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+    roles = db.relationship('Role', secondary=users_roles, backref=db.backref('users', lazy='dynamic'))
 
     def __init__(self, *args, **kwargs):
         """инициализация"""
@@ -25,11 +35,25 @@ class User(db.Model):
 
     def __repr__(self):
         """представление класса в консоли"""
-        return f'<User id: {self.id}, name:{self.name}>'
+        return f'{self.name}'
+
+
+class Role(db.Model, RoleMixin):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(100))
+    description = db.Column(db.String(255))
+
+    def __init__(self, *args, **kwargs):
+        """инициализация"""
+        super(Role, self).__init__(*args, **kwargs)
+
+    def __repr__(self):
+        """представление класса в консоли"""
+        return f'{self.name}'
 
 
 class Tag(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer(), primary_key=True)
     tag_name = db.Column(db.String(100))
     tag_slug = db.Column(db.String(100))
 
@@ -40,19 +64,19 @@ class Tag(db.Model):
 
     def __repr__(self):
         """представление класса в консоли"""
-        return f'<Tag id: {self.id}, name:{self.tag_name}>'
+        return f'{self.tag_name}'
 
 
 class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(140))
     title_image = db.Column(db.String(60))
     description = db.Column(db.String(280))
     slug = db.Column(db.String(140), unique=True)
     body = db.Column(db.Text)
-    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    author_id = db.Column(db.Integer(), db.ForeignKey('user.id'), nullable=False)
     create_time = db.Column(db.DateTime, default=datetime.now())
-    status = db.Column(db.Boolean, default=0)
+    status = db.Column(db.Boolean(), default=0)
 
     def __init__(self, *args, **kwargs):
         """инициализация"""
@@ -61,7 +85,7 @@ class Post(db.Model):
 
     def __repr__(self):
         """представление класса в консоли"""
-        return f'<Post id: {self.id}, title:{self.title}>'
+        return f'{self.title}'
 
     tags = db.relationship('Tag',
                            secondary=post_tags,
@@ -80,13 +104,12 @@ class Post(db.Model):
         else:
             return ''
 
-
     def get_author(self):
         """временное решение возврат псевдонима админа"""
         a = {1: 'Start Flask', 2: 'I AM', 3: 'CatDog', 4: 'AKIRA'}
-        if not self.author_id:
+        if not self.author:
             return 'Administrator'
-        return self.author.name
+        return self.author
 
     def get_formated_date(self, format='%B %d, %Y'):
         """получение даты в формате d mounth YYYY"""
@@ -109,9 +132,7 @@ def f_slugify(s: str):
 
 
 def upload_folder(workspace='/static/img', folder='upload'):
-    """если папки не существует создание папки upload
-    create_folder(r"C:\TEMP\person\age1", "Gulag")
-    create folder with path C:\TEMP\person\age1\Gulag"""
+    """если папки не существует создание папки upload"""
     path = os.path.join(workspace, folder)
     if not os.path.exists(path):
         os.makedirs(path)
