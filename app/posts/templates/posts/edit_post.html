@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Edit Post
+{% endblock %} | Flask app
+
+{% block content_head %}
+   <!-- Page Header -->
+    <header class="intro-header" style="background-image: url('{{ url_for('static', filename='img/home-bg.jpg') }}'); height:60px">
+    </header>
+{% endblock %}
+
+{% block content %}
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+
+                <h1>Edit post</h1>
+                <br>
+
+                <form action="{{ url_for('posts.edit_post', slug=post.slug) }}" method="POST">
+                    {% for field in form %}
+                        <div class="row control-group">
+                            <div class="form-group col-xs-12 controls">
+                                {{ field.label(class='control-label small') }}
+                                {{ field(class='form-control') }}
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success">Edit</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
