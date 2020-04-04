@@ -41,3 +41,9 @@ def contact_page():
 @app.route('/post.html')
 def post_page():
     return render_template('post.html')
+
+
+@app.errorhandler(404)
+def page_404(e):
+    """страница 404"""
+    return render_template('404.html')
